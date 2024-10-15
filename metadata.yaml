@@ -1,0 +1,5 @@
+homepage: "https://soicos.com"
+documentation: "https://soicos.com"
+versions:
+  - sha: ff8ab04fa5b40edf91fbadfa677c5aea3a9992a0
+    changeNotes: Initial release.
