@@ -1,5 +1,9 @@
 homepage: "https://soicos.com"
 documentation: "https://soicos.com"
 versions:
+  - sha: d5795a6f3dd299e19d5b3f373653c06ae1be75bb
+    changeNotes: |2
+      Updated Logo.
+      Update Template field descriptions
   - sha: ff8ab04fa5b40edf91fbadfa677c5aea3a9992a0
     changeNotes: Initial release.
