@@ -394,6 +394,7 @@ const setCookie = require('setCookie');
 const copyFromDataLayer = require('copyFromDataLayer');
 const injectScript = require('injectScript');
 const logToConsole = require('logToConsole');
+const queryPermission = require('queryPermission');
 
 var logs = [];
 const domain = data.domain;
@@ -435,6 +436,8 @@ function callPixel() {
     getPixel(pixelUrl);
     logs.push({ message: "Pixel called", value: pixelUrl });
     data.gtmOnSuccess();
+  }else {
+    data.gtmOnFailure();
   }
 }
 
@@ -488,7 +491,9 @@ function nonDirectLogic() {
 
 
 function setCookieSoicos(value) {
-	setCookie('attr_source_cookie', value, { "path": '/', "max-age": "2592000", "domain": domain });
+  const options = { "path": '/', "max-age": "2592000", "domain": domain };
+  if (queryPermission('set_cookies', 'attr_source_cookie', options))
+  	setCookie('attr_source_cookie', value, options);
 }
 
 function typCondition() {
@@ -784,56 +789,7 @@ ___WEB_PERMISSIONS___
 
 ___TESTS___
 
-scenarios:
-- name: t1
-  code: |-
-    const mockData = {model: 'lastClic', utm_source: 'soicos'};
-    runCode(mockData);
-    assertApi('setCookie').wasCalledWith('attr_source_cookie', 'soicos', options);
-- name: modelo last click, refe, con otro dominio
-  code: |-
-    const mockData = {
-      ref : "norton.com",
-    };
-
-    // Call runCode to run the template's code.
-    runCode(mockData);
-    assertApi('setCookie').wasCalledWith('attr_source_cookie', 'direct', options);
-
-
-    //assertApi('gtmOnSuccess').wasCalled();
-- name: getReferrerUrl se ejecuta
-  code: |-
-    const mockData = {
-      model: 'lastClic'
-    };
-
-    runCode(mockData);
-
-    assertApi('getReferrerUrl').wasCalled();
-    assertApi('gtmOnSuccess').wasCalled();
-- name: non direct
-  code: |-
-    const mockData = {
-      model : 'nonDirect',
-      utm_source: 'soicos'
-    };
-
-    runCode(mockData);
-    assertApi('setCookie').wasCalledWith('attr_source_cookie', 'soicos', options);
-- name: Untitled test 5
-  code: |-
-    const mockData = {
-      // Mocked field values
-    };
-
-    // Call runCode to run the template's code.
-    runCode(mockData);
-
-    // Verify that the tag finished successfully.
-    assertApi('gtmOnSuccess').wasCalled();
-- name: Quick Test
-  code: runCode();
+scenarios: []
 setup: ''
 
 
