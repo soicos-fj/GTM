@@ -1,6 +1,9 @@
 homepage: "https://soicos.com"
-documentation: "https://soicos.com"
+documentation: "https://github.com/soicos-fj/GTM"
 versions:
+  - sha: 2bfaef4c2b2d046107674e13bf7c2af622da821d
+    changeNotes: |1
+      Fixed the implementation of gtmOnSuccess and gtmOnFailure.
   - sha: d5795a6f3dd299e19d5b3f373653c06ae1be75bb
     changeNotes: |2
       Updated Logo.
