@@ -395,6 +395,7 @@ const copyFromDataLayer = require('copyFromDataLayer');
 const injectScript = require('injectScript');
 const logToConsole = require('logToConsole');
 const queryPermission = require('queryPermission');
+const encodeUriComponent = require('encodeUriComponent');
 
 var logs = [];
 const domain = data.domain;
@@ -414,6 +415,9 @@ switch(data.model) {
   case "non_direct":
     nonDirectPixel();
     break;
+  default:
+    data.gtmOnSuccess();
+    break;
 }
 
 function lastClickPixel() {
@@ -432,7 +436,13 @@ function getPixel(url) {
 
 function callPixel() {
   if(cookieCondition()  && typCondition()) {
-    const pixelUrl = "https://ad.soicos.com/conv.php?pid="+data.pid+"&trans[orderID]="+data.orderID+"&trans[total]="+data.total+"&trans[currency]="+data.currency+"&event="+pixel_event;
+  const pixelUrl = "https://ad.soicos.com/conv.php?pid=" + 
+        encodeUriComponent(data.pid) +
+        "&trans[orderID]=" + encodeUriComponent(data.orderID) +
+        "&trans[total]=" + encodeUriComponent(data.total) +
+        "&trans[currency]=" + encodeUriComponent(data.currency) +
+        "&event=" + encodeUriComponent(pixel_event);
+    
     getPixel(pixelUrl);
     logs.push({ message: "Pixel called", value: pixelUrl });
     data.gtmOnSuccess();
@@ -471,9 +481,9 @@ function lastLogic() {
   const domains_included = domains.map((d) => extractDomain(d.domain));
   logs.push({ message: "UTM Source", value: utm_source });
   if (utm_source)
-  	setCookieSoicos(utm_source);
+    setCookieSoicos(utm_source);
   else if (gclid)
-  	setCookieSoicos("GoogleAds");
+    setCookieSoicos("GoogleAds");
   else if (ref) {
     if (ref != "tagassistant.google.com" && !containsAnyElement(domains_included, ref)){
       logs.push({ message: "Referrer", value: ref });
@@ -484,16 +494,16 @@ function lastLogic() {
 
 function nonDirectLogic() {
   if (utm_source)
-  	setCookieSoicos(utm_source);
+    setCookieSoicos(utm_source);
   else if (gclid)
-  	setCookieSoicos("GoogleAds");
+    setCookieSoicos("GoogleAds");
 }
 
 
 function setCookieSoicos(value) {
   const options = { "path": '/', "max-age": "2592000", "domain": domain };
   if (queryPermission('set_cookies', 'attr_source_cookie', options))
-  	setCookie('attr_source_cookie', value, options);
+    setCookie('attr_source_cookie', value, options);
 }
 
 function typCondition() {
