@@ -1,6 +1,10 @@
 homepage: "https://soicos.com"
 documentation: "https://github.com/soicos-fj/GTM"
 versions:
+  - sha: c86b5bc156c0d39eaadcd77b9f09b4b69689fa8e
+    changeNotes: |2
+      Fixed URL path using encodeURIComponent for parameters.
+      Added a default case to the switch statement.
   - sha: 2bfaef4c2b2d046107674e13bf7c2af622da821d
     changeNotes: |1
       Fixed the implementation of gtmOnSuccess and gtmOnFailure.
