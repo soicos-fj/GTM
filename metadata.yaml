@@ -1,6 +1,10 @@
 homepage: "https://soicos.com"
 documentation: "https://github.com/soicos-fj/GTM"
 versions:
+  - sha: 3070ae55ca30de930d73124bea4bc466642ac81a
+    changeNotes: |2
+      Prevented 'undefined' in pixel URL by handling pixel_event properly.
+      Added help text for attribution model selection.
   - sha: c86b5bc156c0d39eaadcd77b9f09b4b69689fa8e
     changeNotes: |2
       Fixed URL path using encodeURIComponent for parameters.
