@@ -67,7 +67,8 @@ ___TEMPLATE_PARAMETERS___
             "displayValue": "Last click"
           }
         ],
-        "simpleValueType": true
+        "simpleValueType": true,
+        "help": "Last Click: Assigns 100% of the conversion value to the last channel the user interacted with before converting, regardless of whether it was direct traffic. \nLast Click Non-Direct: Ignores direct traffic and attributes the conversion to the last channel the user clicked on before making a purchase.\nLast Click (GA4 - Paid and Organic Channels): Works similarly to \"Last Click Non-Direct,\" but only considers clicks from paid and organic channels, ignoring direct traffic and other sources."
       },
       {
         "type": "TEXT",
@@ -436,12 +437,13 @@ function getPixel(url) {
 
 function callPixel() {
   if(cookieCondition()  && typCondition()) {
+  const event_param = pixel_event ? "&event=" + encodeUriComponent(pixel_event) : "";
   const pixelUrl = "https://ad.soicos.com/conv.php?pid=" + 
         encodeUriComponent(data.pid) +
         "&trans[orderID]=" + encodeUriComponent(data.orderID) +
         "&trans[total]=" + encodeUriComponent(data.total) +
         "&trans[currency]=" + encodeUriComponent(data.currency) +
-        "&event=" + encodeUriComponent(pixel_event);
+        event_param;
     
     getPixel(pixelUrl);
     logs.push({ message: "Pixel called", value: pixelUrl });
@@ -536,7 +538,7 @@ function cookieCondition(){
 }
 
 function lastClickPaidPixel() {
-  setUtmSourceCookie(lastLogic);
+  setUtmSourceCookie(nonDirectLogic);
   callPixel();
 }
 
