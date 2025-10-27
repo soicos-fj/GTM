@@ -1,12 +1,4 @@
-﻿___TERMS_OF_SERVICE___
-
-By creating or modifying this file you agree to Google Tag Manager's Community
-Template Gallery Developer Terms of Service available at
-https://developers.google.com/tag-manager/gallery-tos (or such other URL as
-Google may provide), as modified from time to time.
-
-
-___INFO___
+﻿___INFO___
 
 {
   "type": "TAG",
@@ -278,6 +270,30 @@ ___TEMPLATE_PARAMETERS___
         ]
       },
       {
+        "type": "SELECT",
+        "name": "typ_type_event",
+        "displayName": "Thank you page type",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "single",
+            "displayValue": "Single"
+          },
+          {
+            "value": "multiple",
+            "displayValue": "Multiple"
+          }
+        ],
+        "simpleValueType": true,
+        "enablingConditions": [
+          {
+            "paramName": "trigger_type",
+            "paramValue": "custom_event",
+            "type": "EQUALS"
+          }
+        ]
+      },
+      {
         "type": "TEXT",
         "name": "typ",
         "displayName": "Page Path",
@@ -303,8 +319,8 @@ ___TEMPLATE_PARAMETERS___
         "simpleValueType": true,
         "enablingConditions": [
           {
-            "paramName": "trigger_type",
-            "paramValue": "custom_event",
+            "paramName": "typ_type_event",
+            "paramValue": "single",
             "type": "EQUALS"
           }
         ],
@@ -344,6 +360,40 @@ ___TEMPLATE_PARAMETERS___
         "enablingConditions": [
           {
             "paramName": "typ_type",
+            "paramValue": "multiple",
+            "type": "EQUALS"
+          }
+        ],
+        "newRowButtonText": "Add Thank You Page"
+      },
+      {
+        "type": "SIMPLE_TABLE",
+        "name": "events_information",
+        "displayName": "Thank you page Information",
+        "simpleTableColumns": [
+          {
+            "defaultValue": "",
+            "displayName": "(Mandatory) Event",
+            "name": "event",
+            "type": "TEXT",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ],
+            "valueHint": "checkout"
+          },
+          {
+            "defaultValue": "",
+            "displayName": "(Optional) Pixel Event",
+            "name": "eventPixel",
+            "type": "TEXT",
+            "valueValidators": []
+          }
+        ],
+        "enablingConditions": [
+          {
+            "paramName": "typ_type_event",
             "paramValue": "multiple",
             "type": "EQUALS"
           }
@@ -406,7 +456,7 @@ const utm_source = getQueryParameters(data.utm);
 const gclid = getQueryParameters('gclid');
 const url = getUrl();
 
-switch(data.model) {
+switch (data.model) {
   case "last_click":
     lastClickPixel();
     break;
@@ -431,63 +481,66 @@ function nonDirectPixel() {
   callPixel();
 }
 
-function getPixel(url) {
-  injectScript(url, data.gtmOnSuccess, data.gtmOnFailure);
+function lastClickPaidPixel() {
+  setUtmSourceCookie(nonDirectLogic);
+  callPixel();
 }
 
-function callPixel() {
-  if(cookieCondition()  && typCondition()) {
-  const event_param = pixel_event ? "&event=" + encodeUriComponent(pixel_event) : "";
-  const pixelUrl = "https://ad.soicos.com/conv.php?pid=" + 
-        encodeUriComponent(data.pid) +
-        "&trans[orderID]=" + encodeUriComponent(data.orderID) +
-        "&trans[total]=" + encodeUriComponent(data.total) +
-        "&trans[currency]=" + encodeUriComponent(data.currency) +
-        event_param;
-    
-    getPixel(pixelUrl);
-    logs.push({ message: "Pixel called", value: pixelUrl });
-    data.gtmOnSuccess();
-  }else {
-    data.gtmOnFailure();
+function matchSingleOrMultiple(mode, singleValue, multipleList, currentValue, onItemMatched) {
+  if (mode === 'single') {
+    const s = (singleValue || '').trim();
+    const c = (currentValue || '').trim();
+    const hit = !!s && c === s;
+    if (hit && onItemMatched) onItemMatched({ eventPixel: undefined });
+    return hit;
   }
+  if (mode === 'multiple') {
+    const list = multipleList || [];
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i] || {};
+      const target = (item.event || '').trim();
+      const c = (currentValue || '').trim();
+      if (c === target) {
+        if (onItemMatched) onItemMatched(item);
+        return true;
+      }
+    }
+    return false;
+  }
+  return false;
 }
 
-function inCustomEvent () {
-  const isCustomEvent = data.trigger_type == "custom_event" && copyFromDataLayer('event') == data.custom_event;
-  logs.push({ message: "Custom event check", value: isCustomEvent });
-  return isCustomEvent;
+function extractDomain(u) {
+  const host = (u.indexOf("://") > -1 ? u.split('/')[2] : u.split('/')[0]).split(':')[0];
+  return host.toLowerCase();
 }
 
-function extractDomain(url) {
-  return (url.indexOf("://") > -1 ? url.split('/')[2] : url.split('/')[0]).split(':')[0];
+function containsElement(container, elem) {
+  if (!container || !elem) return false;
+  return (container + '').toLowerCase().indexOf((elem + '').toLowerCase()) !== -1;
 }
 
-function containsElement (contain, elem) {
-  return contain.indexOf(elem) != -1;
-}
-
-function containsAnyElement(contains, elem) {
-  return contains.some(contain => containsElement(elem, contain));
+function containsAnyElement(containerList, elem) {
+  containerList = containerList || [];
+  return containerList.some(contain => containsElement(contain, elem));
 }
 
 function setUtmSourceCookie(logicFunction) {
-  if(!inCustomEvent())
-    logicFunction();
+  if (!inCustomEvent()) logicFunction();
 }
 
 function lastLogic() {
-  const domains = data.domains || [];
+  const domains = (data.domains || []).slice();
   const ref = getReferrerUrl("host");
-  domains.push({"domain": domain});
-  const domains_included = domains.map((d) => extractDomain(d.domain));
+  domains.push({ domain: domain });
+  const domains_included = domains.map(d => extractDomain(d.domain));
   logs.push({ message: "UTM Source", value: utm_source });
-  if (utm_source)
+  if (utm_source) {
     setCookieSoicos(utm_source);
-  else if (gclid)
+  } else if (gclid) {
     setCookieSoicos("GoogleAds");
-  else if (ref) {
-    if (ref != "tagassistant.google.com" && !containsAnyElement(domains_included, ref)){
+  } else if (ref) {
+    if (ref !== "tagassistant.google.com" && !containsAnyElement(domains_included, ref)) {
       logs.push({ message: "Referrer", value: ref });
       setCookieSoicos(ref);
     }
@@ -495,58 +548,118 @@ function lastLogic() {
 }
 
 function nonDirectLogic() {
-  if (utm_source)
+  if (utm_source) {
     setCookieSoicos(utm_source);
-  else if (gclid)
+  } else if (gclid) {
     setCookieSoicos("GoogleAds");
+  }
 }
 
-
 function setCookieSoicos(value) {
-  const options = { "path": '/', "max-age": "2592000", "domain": domain };
-  if (queryPermission('set_cookies', 'attr_source_cookie', options))
+  const options = { path: '/', "max-age": "2592000", domain: domain };
+  if (queryPermission('set_cookies', 'attr_source_cookie', options)) {
     setCookie('attr_source_cookie', value, options);
+  }
+}
+
+function getMode() {
+  var m = (data.trigger_type === 'custom_event')
+    ? (data.typ_type_event || data.typ_type)
+    : (data.typ_type || data.typ_type_event);
+  return m === 'multiple' ? 'multiple' : 'single';
+}
+
+function inCustomEvent() {
+  if (data.trigger_type !== "custom_event") {
+    logs.push({ message: "Custom event check", value: false });
+    return false;
+  }
+  const currentEvent = (copyFromDataLayer('event') || '').trim();
+  const hit = matchSingleOrMultiple(
+    getMode(),
+    (data.custom_event || '').trim(),
+    (data.events_information || []).map(it => ({
+      event: (it.event || '').trim(),
+      eventPixel: it.eventPixel
+    })),
+    currentEvent,
+    function onMatch(item) {
+      if (item && item.eventPixel) {
+        pixel_event = item.eventPixel;
+      }
+    }
+  );
+  logs.push({ message: "Custom event check", value: hit, currentEvent: currentEvent });
+  return hit;
 }
 
 function typCondition() {
-  function inUrl(ele){
+  if (data.trigger_type === "custom_event") {
+    const res = inCustomEvent();
+    logs.push({ message: "typCondition", value: res });
+    return res;
+  }
+  function inUrl(ele) {
     return containsElement(url, ele);
   }
-  
-  function isOnSingleTyp(){
-    return data.typ_type == "single" && inUrl(data.typ);
+  var modeUrl = (data.typ_type || data.typ_type_event) === 'multiple' ? 'multiple' : 'single';
+  function isOnSingleTyp() {
+    return modeUrl === "single" && inUrl(data.typ);
   }
-  
-  function isOnMultipleTyps () {
-    if (data.typ_type != "multiple") return false;
+  function isOnMultipleTyps() {
+    if (modeUrl !== "multiple") return false;
     const typs = data.typ_information || [];
     const info = typs.filter(typ_data => inUrl(typ_data.typ));
-    const existsInUrl = info.length != 0;
+    const existsInUrl = info.length !== 0;
     if (existsInUrl) pixel_event = info[0].event;
     return existsInUrl;
   }
-  
-  const typConditionResult = inCustomEvent() || isOnSingleTyp() || isOnMultipleTyps();
+  const typConditionResult = isOnSingleTyp() || isOnMultipleTyps();
   logs.push({ message: "typCondition", value: typConditionResult });
   return typConditionResult;
 }
 
-function cookieCondition(){
-  const cookieConditionResult = getCookieValues('attr_source_cookie')[0] == trigger_cookie_value;
-  logs.push({ message: "Cookie condition", value: cookieConditionResult });
+function cookieCondition() {
+  const cookieVals = getCookieValues('attr_source_cookie') || [];
+  const current = cookieVals[0];
+  const cookieConditionResult = current === trigger_cookie_value;
+  logs.push({ message: "Cookie condition", value: cookieConditionResult, cookieValue: current });
   return cookieConditionResult;
 }
 
-function lastClickPaidPixel() {
-  setUtmSourceCookie(nonDirectLogic);
-  callPixel();
+function callPixel() {
+  if (cookieCondition() && typCondition()) {
+    const event_param = pixel_event ? "&event=" + encodeUriComponent(pixel_event) : "";
+    const pixelUrl =
+      "https://ad.soicos.com/conv.php?pid=" +
+      encodeUriComponent(data.pid) +
+      "&trans[orderID]=" + encodeUriComponent(data.orderID) +
+      "&trans[total]=" + encodeUriComponent(data.total) +
+      "&trans[currency]=" + encodeUriComponent(data.currency) +
+      event_param;
+    logs.push({ message: "Calling pixel", value: pixelUrl });
+    injectScript(
+      pixelUrl,
+      function () {
+        logs.push({ message: "Pixel injected OK", value: pixelUrl });
+        data.gtmOnSuccess();
+      },
+      function () {
+        logs.push({ message: "Pixel inject FAILED", value: pixelUrl });
+        data.gtmOnFailure();
+      },
+      pixelUrl
+    );
+  } else {
+    data.gtmOnFailure();
+  }
 }
 
 function showLogs() {
   logs.forEach(log => logToConsole(log.message, log.value));
 }
 
-if(data.logs){
+if (data.logs) {
   showLogs();
 }
 
