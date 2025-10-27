@@ -1,6 +1,9 @@
 homepage: "https://soicos.com"
 documentation: "https://github.com/soicos-fj/GTM"
 versions:
+  - sha: f78f31c9fbd5d96e8373639362e49dcf7745c6a7
+    changeNotes: |1
+      Added support for multiple custom events mapping to pixel_event.
   - sha: 3070ae55ca30de930d73124bea4bc466642ac81a
     changeNotes: |2
       Prevented 'undefined' in pixel URL by handling pixel_event properly.
