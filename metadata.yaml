@@ -1,6 +1,9 @@
 homepage: "https://soicos.com"
 documentation: "https://github.com/soicos-fj/GTM"
 versions:
+  - sha: 0bd08af597d24b44804fb8ee13829f2746a6c6dd
+    changeNotes: |1
+      Add required Terms of Service section to template.tpl.
   - sha: f78f31c9fbd5d96e8373639362e49dcf7745c6a7
     changeNotes: |1
       Added support for multiple custom events mapping to pixel_event.
