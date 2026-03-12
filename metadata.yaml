@@ -1,6 +1,9 @@
 homepage: "https://soicos.com"
 documentation: "https://github.com/soicos-fj/GTM"
 versions:
+  - sha: 29ab6a5d598aadacc435e30f8e5d3bb487443afb
+    changeNotes: |1
+      Fix typos and improve UI labels in template field descriptions.
   - sha: f44f3872fdf7fca38b74dba4aac6c5ca84c4fd24
     changeNotes: |1
       Fix missing trailing newline in template.tpl for GTM Gallery parser.
