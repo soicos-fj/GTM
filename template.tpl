@@ -32,7 +32,7 @@ ___TEMPLATE_PARAMETERS___
         "errorMessage": "This field is required."
       }
     ],
-    "help": "(Madatory) If the Program ID (pid) is not available, please contact the Soicos operations team to request it."
+    "help": "(Mandatory) If the Program ID (pid) is not available, please contact the Soicos operations team to request it."
   },
   {
     "type": "GROUP",
@@ -78,7 +78,7 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "TEXT",
         "name": "utm",
-        "displayName": "Utm",
+        "displayName": "UTM Parameter",
         "simpleValueType": true,
         "valueValidators": [
           {
@@ -324,7 +324,7 @@ ___TEMPLATE_PARAMETERS___
             "type": "EQUALS"
           }
         ],
-        "help": "(Mandatory) Datalayer event name.",
+        "help": "(Mandatory) DataLayer event name.",
         "valueValidators": [
           {
             "type": "NON_EMPTY"
@@ -369,7 +369,7 @@ ___TEMPLATE_PARAMETERS___
       {
         "type": "SIMPLE_TABLE",
         "name": "events_information",
-        "displayName": "Thank you page Information",
+        "displayName": "Events Information",
         "simpleTableColumns": [
           {
             "defaultValue": "",
@@ -381,7 +381,7 @@ ___TEMPLATE_PARAMETERS___
                 "type": "NON_EMPTY"
               }
             ],
-            "valueHint": "checkout"
+            "valueHint": "purchase"
           },
           {
             "defaultValue": "",
@@ -398,7 +398,7 @@ ___TEMPLATE_PARAMETERS___
             "type": "EQUALS"
           }
         ],
-        "newRowButtonText": "Add Thank You Page"
+        "newRowButtonText": "Add Event"
       },
       {
         "type": "TEXT",
