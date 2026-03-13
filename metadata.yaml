@@ -1,6 +1,9 @@
 homepage: "https://soicos.com"
 documentation: "https://github.com/soicos-fj/GTM"
 versions:
+  - sha: cef86143375f0fd21d0ec4bf90590a7bc56a5761
+    changeNotes: |1
+      Fix Terms of Service: move to file start and correct canonical text.
   - sha: 29ab6a5d598aadacc435e30f8e5d3bb487443afb
     changeNotes: |1
       Fix typos and improve UI labels in template field descriptions.
